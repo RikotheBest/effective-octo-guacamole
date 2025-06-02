@@ -3,7 +3,7 @@ package com.example.springboot_webapp.controller;
 import com.example.springboot_webapp.model.Product;
 import com.example.springboot_webapp.model.User;
 import com.example.springboot_webapp.service.JwtService;
-import com.example.springboot_webapp.service.Serv;
+import com.example.springboot_webapp.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
@@ -11,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -24,12 +23,12 @@ import java.util.List;
 @CrossOrigin
 @RequestMapping("/api")
 public class Controller {
-    private Serv service;
+    private ProductService service;
     private AuthenticationManager authenticationManager;
     private JwtService jwtService;
 
     @Autowired
-    public Controller(Serv service, AuthenticationManager authenticationManager, JwtService jwtService) {
+    public Controller(ProductService service, AuthenticationManager authenticationManager, JwtService jwtService) {
         this.service = service;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;

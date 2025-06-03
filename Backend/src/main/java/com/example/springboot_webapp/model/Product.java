@@ -9,7 +9,7 @@ import jakarta.persistence.*;
 import org.springframework.stereotype.Component;
 
 
-import java.io.Serializable;
+
 import java.util.Date;
 
 @Entity
@@ -23,7 +23,6 @@ public class Product {
     private int price;
     private String brand;
     @Column(nullable = true)
-//    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     private Date releaseDate;
     @Column(nullable = true)
     private boolean productAvailable;

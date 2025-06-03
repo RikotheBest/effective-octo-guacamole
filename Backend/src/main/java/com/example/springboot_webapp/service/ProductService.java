@@ -6,21 +6,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.List;
 
 @Service
 public class ProductService {
     private Repo repo;
+    private RedisTemplate<String, Object> redisTemplate;
 
 
     @Autowired
-    public ProductService(Repo repo) {
+    public ProductService(Repo repo, RedisTemplate<String, Object> redisTemplate) {
         this.repo = repo;
+        this.redisTemplate = redisTemplate;
     }
 
     public ProductService() {
@@ -28,7 +32,6 @@ public class ProductService {
 
     @Cacheable(value = "products")
     public List<Product> findAll(){
-        System.out.println("fetching the products from database...");
         List<Product> products = repo.findAll();
         return products;
     }
@@ -52,7 +55,7 @@ public class ProductService {
         return product.getImageData();
     }
 
-    @CachePut(value = "product", key = "#id")
+    @CachePut(value = "product", key = "#id" )
     public void updateProduct(int id, Product product, MultipartFile image) throws IOException {
         product.setImageName(image.getOriginalFilename());
         product.setImageData(image.getBytes());
@@ -66,8 +69,19 @@ public class ProductService {
         repo.deleteById(id);
     }
 
-//    @Cacheable(value = "products", condition = "")
+
     public List<Product> searchFor(String keyword) {
-        return repo.findAllByKeyword(keyword);
+        List<Product> products = (List<Product>) redisTemplate.opsForValue().get("products::SimpleKey []");
+        if(products.isEmpty()){
+            products = repo.findAll();
+            redisTemplate.opsForValue().set("products::SimpleKey[]", products, Duration.ofDays(1));
+        }
+        return products.stream()
+                .filter((product -> product.getDescription().contains(keyword)
+                        || product.getBrand().contains(keyword)
+                        || product.getName().contains(keyword)))
+                .toList();
+
+//        return repo.findAllByKeyword(keyword);
     }
 }

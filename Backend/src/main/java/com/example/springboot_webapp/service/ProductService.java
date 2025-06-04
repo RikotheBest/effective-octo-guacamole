@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.util.Base64;
 import java.util.List;
 
 @Service
@@ -49,10 +50,18 @@ public class ProductService {
         repo.save(product);
     }
 
-    @Cacheable(value = "image", key = "#id")
+//    @Cacheable(value = "image", key = "#id")
     public byte[] getImageById(int id) {
-        Product product = findProduct(id);
-        return product.getImageData();
+        String encodedImage = (String) redisTemplate.opsForValue().get("image::" + id);
+        byte[] decodedImage;
+        if(encodedImage != null){
+            decodedImage = Base64.getDecoder().decode(encodedImage);
+        }else {
+            decodedImage = this.findProduct(id).getImageData();
+            redisTemplate.opsForValue().set("image::" + id, decodedImage);
+        }
+
+        return decodedImage;
     }
 
     @CachePut(value = "product", key = "#id" )
@@ -77,9 +86,9 @@ public class ProductService {
             redisTemplate.opsForValue().set("products::SimpleKey[]", products, Duration.ofDays(1));
         }
         return products.stream()
-                .filter((product -> product.getDescription().contains(keyword)
-                        || product.getBrand().contains(keyword)
-                        || product.getName().contains(keyword)))
+                .filter((product -> product.getDescription().toLowerCase().contains(keyword.toLowerCase())
+                        || product.getBrand().toLowerCase().contains(keyword.toLowerCase())
+                        || product.getName().toLowerCase().contains(keyword.toLowerCase())))
                 .toList();
 
 //        return repo.findAllByKeyword(keyword);

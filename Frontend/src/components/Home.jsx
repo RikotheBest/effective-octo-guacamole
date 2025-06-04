@@ -27,12 +27,8 @@ const Home = ({ selectedCategory }) => {
                 { 
                   responseType: "blob",
                  }
-              )/*.catch((error) => {
-              if(error.response.status === 401){
-                window.location = "/"
-             }
-              })
-*/            const imageUrl = URL.createObjectURL(response.data);
+              )
+              const imageUrl = URL.createObjectURL(response.data);
               return { ...product, imageUrl };
             } catch (error) {
             

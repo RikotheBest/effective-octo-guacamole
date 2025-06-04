@@ -20,23 +20,24 @@ import java.util.function.Function;
 
 @Service
 public class JwtService {
-    private String secretKey;
-
-    public JwtService() {
-        this.secretKey = generateSecretKey();
-    }
-
-    public String generateSecretKey(){
-        try {
-            KeyGenerator KeyGen = KeyGenerator.getInstance("HmacSHA256");
-            SecretKey secretKey = KeyGen.generateKey();
-            String secretKeyString = Base64.getEncoder().encodeToString(secretKey.getEncoded());
-
-            return secretKeyString;
-        }catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-    }
+    private String secretKey = "tggvzgniylcbandcwdpdgdzvvniwzgaqsdasdasdasdagfgdfgdfg";
+//    private String secretKey;
+//
+//    public JwtService() {
+//        this.secretKey = generateSecretKey();
+//    }
+//
+//    public String generateSecretKey(){
+//        try {
+//            KeyGenerator KeyGen = KeyGenerator.getInstance("HmacSHA256");
+//            SecretKey secretKey = KeyGen.generateKey();
+//            String secretKeyString = Base64.getEncoder().encodeToString(secretKey.getEncoded());
+//
+//            return secretKeyString;
+//        }catch (NoSuchAlgorithmException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
     public String generateToken(String username) {
         Map<String, Object> claims = new HashMap<>();
 

@@ -1,7 +1,7 @@
 package com.example.springboot_webapp.redis;
 
 
-import com.example.springboot_webapp.model.Product;
+
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,6 +17,7 @@ import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSeriali
 
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+
 
 import java.time.Duration;
 

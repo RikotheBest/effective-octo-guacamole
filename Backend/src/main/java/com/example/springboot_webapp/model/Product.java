@@ -13,29 +13,27 @@ import org.springframework.stereotype.Component;
 import java.util.Date;
 
 @Entity
-@Component
-public class Product {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-    private String name;
-    private String description;
-    private int price;
-    private String brand;
-    @Column(nullable = true)
-    private Date releaseDate;
-    @Column(nullable = true)
-    private boolean productAvailable;
-    @Column(nullable = true)
-    private int stockQuantity;
-    private String imageName;
-    private String imageType;
-    @Column(nullable = true)
-    private String category;
+    @Component
+    public class Product {
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private int id;
+        private String name;
+        private String description;
+        private int price;
+        private String brand;
+        @Column(nullable = true)
+        private Date releaseDate;
+        @Column(nullable = true)
+        private boolean productAvailable;
+        @Column(nullable = true)
+        private int stockQuantity;
+        private String imageName;
+        private String imageType;
+        @Column(nullable = true)
+        private String category;
 
-
-
-    private byte[] imageData;
+        private byte[] imageData;
 
     public Product() {
     }

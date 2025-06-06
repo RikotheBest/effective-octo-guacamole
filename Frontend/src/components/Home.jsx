@@ -48,9 +48,11 @@ const Home = ({ selectedCategory }) => {
     }
   }, [data]);
 
-  const filteredProducts = selectedCategory 
-    ? products.filter((product) => product.category === selectedCategory)
+  
+  let filteredProducts = selectedCategory 
+    ? products.filter((product) => product.category.toLowerCase() === selectedCategory.toLowerCase())
     : products;
+  
 
   if (isError) {
     return (

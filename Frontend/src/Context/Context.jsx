@@ -48,19 +48,6 @@ export const AppProvider = ({ children }) => {
 
 
 
-  // const refreshData = async () => {
-  //   try {
-  //     const response = await axios.get("/products")
-  //     .catch((error) =>{
-  //       if(error.response.status === 401 && window.location.pathname !== "/"){
-  //         window.location.href = "/";
-  //       }
-  //     })
-  //     setData(response.data);
-  //   } catch (error) {
-  //     setIsError(error.message);
-  //   }
-  // };
 
   const refreshData = async () => {
     try {

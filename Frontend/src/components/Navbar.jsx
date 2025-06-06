@@ -105,7 +105,7 @@ const Navbar = ({ onSelectCategory, onSearch }) => {
         <nav className="navbar navbar-expand-lg fixed-top">
           <div className="container-fluid">
             <a className="navbar-brand" href="">
-              Telusko
+              Riko
             </a>
             <button
               className="navbar-toggler"

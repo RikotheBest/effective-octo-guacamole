@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import Login from "./components/Login"
 import Home from "./components/Home";
 import Navbar from "./components/Navbar";
+import Pagination from "./components/Pagination"
 import Cart from "./components/Cart";
 import AddProduct from "./components/AddProduct";
 import Product from "./components/Product";
@@ -12,6 +13,7 @@ import UpdateProduct from "./components/UpdateProduct";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import 'bootstrap/dist/css/bootstrap.min.css';
+
 
 
 function App() {
@@ -54,6 +56,7 @@ function App() {
 }
 function AppContent({ handleCategorySelect, selectedCategory, addToCart }) {
   const location = useLocation();
+  const isHomePage = location.pathname === "/home"
   const isLoginPage = location.pathname === '/';
   
   return (
@@ -71,6 +74,7 @@ function AppContent({ handleCategorySelect, selectedCategory, addToCart }) {
         <Route path="/cart" element={<Cart />} />
         <Route path="/product/update/:id" element={<UpdateProduct />} />
       </Routes>
+      {isHomePage && (<Pagination />)}
     </>
   );
 }

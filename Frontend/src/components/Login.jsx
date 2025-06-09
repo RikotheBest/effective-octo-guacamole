@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import  { useState } from "react";
 import axios from "axios";
 
 
@@ -34,34 +34,21 @@ const Login = () => {
 
 
     return (
+
         <div className="container">
-            <div className="center-container">
-            <form onSubmit={handleSubmit}>
-                <label>
-                    <h6>Username</h6>
-                </label>
-                <input 
-                type="text"
-                value={user.username}
-                onChange={handleInputChange}
-                name="username" 
-                />
-                <label>
-                    <h6>Password</h6>
-                </label>
-                <input 
-                type="password"
-                value={user.password}
-                onChange={handleInputChange}
-                name="password"
-                />
-                <button type="submit" className="btn btn-primary">
-                    submit
-                </button>
-            </form>
+        <form onSubmit={handleSubmit}>
+            <div className="mb-3">
+                <label htmlFor="login" className="form-label">Username</label>
+                <input type="text" className="form-control" id="login" value={user.username} onChange={handleInputChange} name="username"/>
             </div>
-            
+            <div className="mb-3">
+                <label htmlFor="password" className="form-label">Password</label>
+                <input type="password" className="form-control" id="password" value={user.password} onChange={handleInputChange} name="password"/>
+            </div>
+            <button type="submit" className="btn btn-primary">Submit</button>
+        </form>
         </div>
+
     );
 
 };

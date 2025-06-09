@@ -43,6 +43,17 @@
     --search_result-bg: rgb(49, 49, 49);
     --hr_line_card: rgb(255, 255, 255)
 }
+/* .pagination {
+
+  display: flex;
+
+  border: 1px solid #fff;
+
+  justify-content: space-between;
+
+  padding: 20px;
+
+} */
 
 #root {
   max-width: 100%;

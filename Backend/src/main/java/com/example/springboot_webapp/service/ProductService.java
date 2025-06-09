@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,10 +33,9 @@ public class ProductService {
     public ProductService() {
     }
 
-    @Cacheable(value = "products")
-    public List<Product> findAll(){
-        List<Product> products = repo.findAll();
-        return products;
+//    @Cacheable(value = "products")
+    public Page<Product> findAll(int currentPage, int pageSize){
+        return  repo.findAll(PageRequest.of(currentPage, pageSize));
     }
 
     @Cacheable(value = "product", key = "#id")
@@ -62,6 +63,7 @@ public class ProductService {
         }
 
         return decodedImage;
+
     }
 
     @CachePut(value = "product", key = "#id" )

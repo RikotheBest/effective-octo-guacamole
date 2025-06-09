@@ -3,7 +3,11 @@ import axios from "../axios";
 import { useState, useEffect, createContext } from "react";
 
 
+
 const AppContext = createContext({
+  pageSize: 0,
+  currentPage: 0,
+  totalPages: 0,
   data: [],
   isError: "",
   cart: [],
@@ -14,11 +18,15 @@ const AppContext = createContext({
   
 });
 
+
 export const AppProvider = ({ children }) => {
+  const pageSize = 5;
+  const [currentPage, setCurrentPage] = useState(0)
+  const [totalPages, setTotalPages] = useState(0);
   const [data, setData] = useState([]);
   const [isError, setIsError] = useState("");
   const [cart, setCart] = useState(JSON.parse(localStorage.getItem('cart')) || []);
-
+  
   
 
   const addToCart = (product) => {
@@ -51,15 +59,20 @@ export const AppProvider = ({ children }) => {
 
   const refreshData = async () => {
     try {
-      
       const token = localStorage.getItem("jwt");
       if (!token && window.location.pathname !== "/") {
         window.location.href = "/";
         return;
       }
       
-      const response = await axios.get("/products");
-      setData(response.data);
+      const response = await axios.get("/products", {
+        params: {
+          currentPage : currentPage,
+          pageSize : pageSize
+      }});
+      setData(response.data.content);
+      setTotalPages(response.data.page.totalPages)
+      // setCurrentPage(response.data.page.number)
     } catch (error) {
       if (error.response.status === 401) {
         localStorage.removeItem("jwt");
@@ -79,7 +92,7 @@ export const AppProvider = ({ children }) => {
   
   useEffect(() => {
     refreshData();
-  }, []);
+  }, [currentPage]);
 
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cart));
@@ -88,7 +101,7 @@ export const AppProvider = ({ children }) => {
 
   
   return (
-    <AppContext.Provider value={{data, isError, cart, addToCart, removeFromCart,refreshData, clearCart}}>
+    <AppContext.Provider value={{pageSize, currentPage, totalPages, data, isError, cart, addToCart, removeFromCart,refreshData, clearCart, setCurrentPage}}>
       {children}
     </AppContext.Provider>
   );

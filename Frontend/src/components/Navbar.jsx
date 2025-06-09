@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "../axios";
-// import { json } from "react-router-dom";
-// import { BiSunFill, BiMoon } from "react-icons/bi";
+
 
 const Navbar = ({ onSelectCategory, onSearch }) => {
   const getInitialTheme = () => {
@@ -15,42 +14,7 @@ const Navbar = ({ onSelectCategory, onSearch }) => {
   const [noResults, setNoResults] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
   const [showSearchResults,setShowSearchResults] = useState(false)
-  useEffect(() => {
-    fetchData();
-  }, []);
 
-  const fetchData = async (value) => {
-    try {
-      const response = await axios.get("/products");
-      setSearchResults(response.data);
-      console.log(response.data);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-
-  // const handleChange = async (value) => {
-  //   setInput(value);
-  //   if (value.length >= 1) {
-  //     setShowSearchResults(true)
-  //     const getData = setTimeout(async () => {
-  //       try {
-  //       const response = await axios.get(
-  //         `/products/search?keyword=${value}`
-  //       );
-  //       setSearchResults(response.data);
-  //       setNoResults(response.data.length === 0);
-  //       console.log(response.data);
-  //     } catch (error) {
-  //       console.error("Error searching:", error);
-  //     }
-  //     }, 1000); 
-  //   } else {
-  //     setShowSearchResults(false);
-  //     setSearchResults([]);
-  //     setNoResults(false);
-  //   }
-  // };
 
   useEffect(() => {
     if (input.length >= 1) {

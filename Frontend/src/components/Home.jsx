@@ -1,53 +1,62 @@
-import React, { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "../axios";
 import AppContext from "../Context/Context";
 import unplugged from "../assets/unplugged.png"
 
 const Home = ({ selectedCategory }) => {
-  const { data, isError, addToCart, refreshData } = useContext(AppContext);
+  const {pageSize, pageNumber, data, isError, addToCart, refreshData } = useContext(AppContext);
   const [products, setProducts] = useState([]);
-  const [isDataFetched, setIsDataFetched] = useState(false);
 
-  useEffect(() => {
-    if (!isDataFetched) {
-      refreshData();
-      setIsDataFetched(true);
-    }
-  }, [refreshData, isDataFetched]);
 
   useEffect(() => {
     if (data && data.length > 0) {
-      const fetchImagesAndUpdateProducts = async () => {
-        const updatedProducts = await Promise.all(
-          data.map(async (product) => {
-            try {
-              const response = await axios.get(
-                `/product/${product.id}/image`,
-                { 
-                  responseType: "blob",
-                 }
-              )
-              const imageUrl = URL.createObjectURL(response.data);
-              return { ...product, imageUrl };
-            } catch (error) {
-            
-              console.error(
-                "Error fetching image for product ID:",
-                product.id,
-                error
-              );
-              return { ...product, imageUrl: "placeholder-image-url" };
-            }
-          })
-        );
-        setProducts(updatedProducts);
-      };
-
       fetchImagesAndUpdateProducts();
     }
   }, [data]);
 
+
+
+  const fetchImagesAndUpdateProducts = async () => {
+    const updatedProducts = await Promise.all(
+      data.map(async (product) => {
+        try {
+          const response = await axios.get(
+            `/product/${product.id}/image`,
+            { 
+              responseType: "blob",
+              params:{
+                pageNumber: pageNumber,
+                pageSize: pageSize
+              }
+              }
+          )
+          const imageURL = URL.createObjectURL(response.data);
+          return { ...product, imageURL };
+        } catch (error) {
+          console.error(
+            "Error fetching image for product ID:",
+            product.id,
+          );
+          return { ...product, imageURL: "placeholder-image-url" };
+        }
+      })
+    );
+    setProducts(updatedProducts);
+  };
+
+  useEffect(() => {
+    if(data && data.length > 0){
+      fetchImagesAndUpdateProducts();
+    }
+    return () => {
+    products.forEach(product => {
+      if (product.imageURL.startsWith('blob:')) {
+        URL.revokeObjectURL(product.imageURL);
+      }
+    });
+    };
+  }, [data]);
   
   let filteredProducts = selectedCategory 
     ? products.filter((product) => product.category.toLowerCase() === selectedCategory.toLowerCase())
@@ -86,7 +95,7 @@ const Home = ({ selectedCategory }) => {
           </h2>
         ) : (
           filteredProducts.map((product) => {
-            const { id, brand, name, price, productAvailable, imageUrl } =
+            const { id, brand, name, price, productAvailable, imageURL } =
               product;
             const cardStyle = {
               width: "18rem",
@@ -116,7 +125,7 @@ const Home = ({ selectedCategory }) => {
                   style={{ textDecoration: "none", color: "inherit" }}
                 >
                   <img
-                    src={imageUrl}
+                    src={imageURL}
                     alt={name}
                     style={{
                       width: "100%",
@@ -157,7 +166,7 @@ const Home = ({ selectedCategory }) => {
                         className="card-text"
                         style={{ fontWeight: "600", fontSize: "1.1rem",marginBottom:'5px' }}
                       >
-                        <i class="bi bi-currency-dollar"></i>
+                        <i className="bi bi-currency-dollar"></i>
                         {price}
                       </h5>
                     </div>

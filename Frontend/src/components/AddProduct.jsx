@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import axios from "../axios";
 
 const AddProduct = () => {
@@ -32,7 +32,7 @@ const AddProduct = () => {
       "product",
       new Blob([JSON.stringify(product)], { type: "application/json" })
     );
-
+    
     axios
       .post("/product", formData, {
         headers: {

@@ -5,6 +5,7 @@ import com.example.springboot_webapp.model.User;
 import com.example.springboot_webapp.service.JwtService;
 import com.example.springboot_webapp.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 
 
@@ -37,8 +38,8 @@ public class Controller {
     public Controller() {
     }
     @GetMapping("/products")
-    public List<Product> getProducts(){
-        return service.findAll();
+    public Page<Product> getProducts(@RequestParam int currentPage, @RequestParam int pageSize){
+        return service.findAll(currentPage, pageSize);
     }
     @GetMapping("/product/{id}")
     public ResponseEntity<Product> getProduct(@PathVariable int id){
@@ -58,7 +59,7 @@ public class Controller {
         }
     }
     @GetMapping("/product/{id}/image")
-    public ResponseEntity<byte[]> getImage(@PathVariable int id){
+    public ResponseEntity<byte[]> getImage(@PathVariable int id ){
         byte[] image = service.getImageById(id);
         if(image == null) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         return new ResponseEntity<>(image,HttpStatus.OK);

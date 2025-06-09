@@ -55,8 +55,8 @@ const UpdateProduct = () => {
  
   const handleSubmit = async(e) => {
     e.preventDefault();
-    console.log("images", image)
-    console.log("productsdfsfsf", updateProduct)
+    console.log("image", image)
+    console.log("product", updateProduct)
     const updatedProduct = new FormData();
     updatedProduct.append("imageFile", image);
     updatedProduct.append(

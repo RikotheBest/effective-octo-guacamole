@@ -28,12 +28,9 @@ import java.util.Date;
         private boolean productAvailable;
         @Column(nullable = true)
         private int stockQuantity;
-        private String imageName;
-        private String imageType;
         @Column(nullable = true)
         private String category;
 
-        private byte[] imageData;
 
     public Product() {
     }
@@ -64,10 +61,6 @@ import java.util.Date;
 
     public String getBrand() {
         return brand;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public void setName(String name) {
@@ -112,30 +105,6 @@ import java.util.Date;
 
     public void setStockQuantity(int stock) {
         this.stockQuantity = stock;
-    }
-
-    public String getImageName() {
-        return imageName;
-    }
-
-    public void setImageName(String imageName) {
-        this.imageName = imageName;
-    }
-
-    public String getImageType() {
-        return imageType;
-    }
-
-    public void setImageType(String imageType) {
-        this.imageType = imageType;
-    }
-
-    public byte[] getImageData() {
-        return imageData;
-    }
-
-    public void setImageData(byte[] imageData) {
-        this.imageData = imageData;
     }
 
     public String getCategory() {

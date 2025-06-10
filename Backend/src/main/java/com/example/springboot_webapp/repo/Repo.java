@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
-
+import java.util.Optional;
 
 
 @Repository
@@ -21,4 +21,6 @@ public interface Repo extends JpaRepository<Product, Integer> {
             "LOWER(p.description) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(p.brand) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     List<Product> findAllByKeyword(String keyword);
+
+
 }

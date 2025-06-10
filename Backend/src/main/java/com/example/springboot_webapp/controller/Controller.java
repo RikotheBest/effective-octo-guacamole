@@ -1,5 +1,6 @@
 package com.example.springboot_webapp.controller;
 
+import com.example.springboot_webapp.model.Image;
 import com.example.springboot_webapp.model.Product;
 import com.example.springboot_webapp.model.User;
 import com.example.springboot_webapp.service.JwtService;
@@ -28,11 +29,13 @@ public class Controller {
     private AuthenticationManager authenticationManager;
     private JwtService jwtService;
 
+
     @Autowired
     public Controller(ProductService service, AuthenticationManager authenticationManager, JwtService jwtService) {
         this.service = service;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
+
     }
 
     public Controller() {
@@ -49,10 +52,10 @@ public class Controller {
         return new ResponseEntity<>(product,HttpStatus.OK);
     }
     @PostMapping(path = "/product", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<?> addProduct(@RequestPart("product") Product product, @RequestParam("imageFile") MultipartFile image) {
-        if(product == null && image == null) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    public ResponseEntity<?> addProduct(@RequestPart("product") Product product, @RequestParam("imageFile") MultipartFile multipartImage) {
+        if(product == null && multipartImage == null) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         try {
-            service.addProduct(product, image);
+            service.addProduct(product, multipartImage);
             return new ResponseEntity<>(HttpStatus.CREATED);
         } catch (IOException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -65,10 +68,10 @@ public class Controller {
         return new ResponseEntity<>(image,HttpStatus.OK);
     }
     @PutMapping(path = "/product/{id}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<?> updateProduct(@RequestPart("product") Product product, @RequestParam("imageFile") MultipartFile image, @PathVariable int id){
-        if(product == null && image == null) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    public ResponseEntity<?> updateProduct(@RequestPart("product") Product product, @RequestParam("imageFile") MultipartFile multipartImage, @PathVariable int id ){
+        if(product == null && multipartImage == null) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         try {
-            service.updateProduct(id, product, image);
+            service.updateProduct(id, product, multipartImage);
             return new ResponseEntity<>(HttpStatus.CREATED);
         } catch (IOException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);

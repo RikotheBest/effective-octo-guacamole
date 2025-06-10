@@ -71,8 +71,8 @@ public class ProductService {
         product.setImageName(image.getOriginalFilename());
         product.setImageData(image.getBytes());
         product.setImageType(image.getContentType());
-        redisTemplate.opsForValue().setIfPresent("product::"+id, product);
-        redisTemplate.opsForValue().setIfPresent("image::"+id, image.getBytes());
+        redisTemplate.opsForValue().setIfPresent("product::"+id, product, Duration.ofDays(1));
+        redisTemplate.opsForValue().setIfPresent("image::"+id, image.getBytes(), Duration.ofDays(1));
         repo.save(product);
     }
 
@@ -93,6 +93,6 @@ public class ProductService {
                         || product.getBrand().toLowerCase().contains(keyword.toLowerCase())
                         || product.getName().toLowerCase().contains(keyword.toLowerCase())))
                 .toList();
-        
+
     }
 }

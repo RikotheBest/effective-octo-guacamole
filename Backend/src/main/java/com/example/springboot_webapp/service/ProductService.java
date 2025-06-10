@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -44,14 +45,14 @@ public class ProductService {
     }
 
     @CachePut(value = "product", key = "#product.id")
-    public void addProduct(Product product, MultipartFile image) throws IOException {
+    public Product addProduct(Product product, MultipartFile image) throws IOException {
         product.setImageData(image.getBytes());
         product.setImageType(image.getContentType());
         product.setImageName(image.getOriginalFilename());
-        repo.save(product);
+        return repo.save(product);
     }
 
-//    @Cacheable(value = "image", key = "#id")
+
     public byte[] getImageById(int id) {
         String encodedImage = (String) redisTemplate.opsForValue().get("image::" + id);
         byte[] decodedImage;
@@ -59,23 +60,23 @@ public class ProductService {
             decodedImage = Base64.getDecoder().decode(encodedImage);
         }else {
             decodedImage = this.findProduct(id).getImageData();
-            redisTemplate.opsForValue().set("image::" + id, decodedImage);
+            redisTemplate.opsForValue().set("image::" + id, decodedImage, Duration.ofDays(1));
         }
 
         return decodedImage;
 
     }
 
-    @CachePut(value = "product", key = "#id" )
     public void updateProduct(int id, Product product, MultipartFile image) throws IOException {
         product.setImageName(image.getOriginalFilename());
         product.setImageData(image.getBytes());
         product.setImageType(image.getContentType());
-        repo.updateProductById(product.getName(), product.getDescription(), product.getPrice(), product.getBrand(), product.getReleaseDate(),
-                product.isProductAvailable(), product.getStockQuantity(), product.getImageName(), product.getImageType(), product.getImageData(), product.getCategory(),id);
+        redisTemplate.opsForValue().setIfPresent("product::"+id, product);
+        redisTemplate.opsForValue().setIfPresent("image::"+id, image.getBytes());
+        repo.save(product);
     }
 
-    @CacheEvict(value = "product", key = "#id")
+    @Caching(evict = {@CacheEvict(value = "product", key = "#id"), @CacheEvict(value = "image", key = "#id")})
     public void deleteProduct(int id) {
         repo.deleteById(id);
     }
@@ -92,7 +93,6 @@ public class ProductService {
                         || product.getBrand().toLowerCase().contains(keyword.toLowerCase())
                         || product.getName().toLowerCase().contains(keyword.toLowerCase())))
                 .toList();
-
-//        return repo.findAllByKeyword(keyword);
+        
     }
 }

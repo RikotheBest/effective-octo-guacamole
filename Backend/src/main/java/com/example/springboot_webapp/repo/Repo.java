@@ -15,18 +15,6 @@ import java.util.List;
 
 @Repository
 public interface Repo extends JpaRepository<Product, Integer> {
-    @Transactional
-    @Modifying
-    @NativeQuery(value = "UPDATE product SET name = ?, description= ?, price = ?, brand = ?, release_date = ?, product_available = ?, stock_quantity = ?, image_name = ?, image_type = ?, image_data = ?, category = ? WHERE id = ?")
-    void updateProductById(String name, String description, int price, String brand, Date releaseDate, boolean productAvailable,
-                           int stockQuantity, String imageName, String imageType, byte[] imageData, String category, int id);
-
-//    @Transactional
-//    @Modifying
-//    @NativeQuery(value = "DELETE FROM product WHERE id = ?")
-//    void deleteProductById(int id);
-
-
 
     @Query("SELECT p from Product p WHERE " +
             "LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +

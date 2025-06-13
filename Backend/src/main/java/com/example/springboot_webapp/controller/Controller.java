@@ -41,7 +41,7 @@ public class Controller {
     public Controller() {
     }
     @GetMapping("/products")
-    public Page<Product> getProducts(@RequestParam int currentPage, @RequestParam int pageSize){
+    public Page<? extends Object> getProducts(@RequestParam int currentPage, @RequestParam int pageSize){
         return service.findAll(currentPage, pageSize);
     }
     @GetMapping("/product/{id}")

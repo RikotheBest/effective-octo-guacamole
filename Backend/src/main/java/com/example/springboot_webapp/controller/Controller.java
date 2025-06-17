@@ -63,9 +63,12 @@ public class Controller {
     }
     @GetMapping("/product/{id}/image")
     public ResponseEntity<byte[]> getImage(@PathVariable int id ){
-        byte[] image = service.getImageById(id);
-        if(image == null) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        return new ResponseEntity<>(image,HttpStatus.OK);
+        try {
+            byte[] image = service.getImageById(id);
+            return new ResponseEntity<>(image,HttpStatus.OK);
+        }catch (NullPointerException e){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
     @PutMapping(path = "/product/{id}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<?> updateProduct(@RequestPart("product") Product product, @RequestParam("imageFile") MultipartFile multipartImage, @PathVariable int id ){

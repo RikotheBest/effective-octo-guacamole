@@ -66,14 +66,11 @@ public class JwtService {
     }
 
     private Claims extractAllClaims(String token) {
-        try{
+
             return Jwts.parser()
                     .verifyWith(getKey())
                     .build().parseSignedClaims(token).getPayload();
-        }catch (JwtException e){
-            System.out.println("Error verifying the Token");
-            return null;
-        }
+
     }
 
 

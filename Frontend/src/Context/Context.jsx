@@ -20,7 +20,7 @@ const AppContext = createContext({
 
 
 export const AppProvider = ({ children }) => {
-  const pageSize = 5;
+  const pageSize = 10;
   const [currentPage, setCurrentPage] = useState(0)
   const [totalPages, setTotalPages] = useState(0);
   const [data, setData] = useState([]);

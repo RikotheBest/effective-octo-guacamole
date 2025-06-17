@@ -5,6 +5,7 @@ import com.example.springboot_webapp.model.Product;
 import com.example.springboot_webapp.repo.ImageRepo;
 import com.example.springboot_webapp.repo.Repo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.SpringApplicationEvent;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -20,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Base64;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -28,8 +30,7 @@ public class ProductService {
     private Repo repo;
     private ImageRepo imageRepo;
     private RedisTemplate<String, Object> redisTemplate;
-    private static final String PRODUCT_INDEX_KEY = "product:index";
-    private static final String PRODUCT_KEY_PREFIX = "product::";
+    private static final String PRODUCT_ZSET = "products";
 
 
     @Autowired
@@ -46,52 +47,54 @@ public class ProductService {
     public Page<Product> findAll(int currentPage, int pageSize){
         int start = currentPage * pageSize;
         int end = start + pageSize - 1;
-        Long totalIds = redisTemplate.opsForZSet().size(PRODUCT_INDEX_KEY);
+        Long cachedProducts = redisTemplate.opsForZSet().size(PRODUCT_ZSET);
         long totalProducts = repo.count();
-        if(totalIds == totalProducts){
-            Set<Object> ids = redisTemplate.opsForZSet().range(PRODUCT_INDEX_KEY, start, end);
-            List<String> keys = ids.stream()
-                    .map(id -> PRODUCT_KEY_PREFIX + id.toString())
-                    .toList();
-            List<Product> products = redisTemplate.opsForValue().multiGet(keys).stream()
-                    .map(obj -> (Product)obj)
+        if(cachedProducts == totalProducts){
+            Set<Object> objects = redisTemplate.opsForZSet().range(PRODUCT_ZSET, start, end);
+            List<Product> products = objects.stream()
+                    .map(object -> (Product)object)
                     .toList();
 
-            return new PageImpl<Product>(products, PageRequest.of(currentPage, pageSize), totalProducts);
-        }else {
+            return new PageImpl<>(products, PageRequest.of(currentPage, pageSize), totalProducts);
+        } else {
             Page<Product> page = repo.findAll(PageRequest.of(currentPage,pageSize));
-            page.forEach(p -> redisTemplate.opsForZSet().add(PRODUCT_INDEX_KEY, p.getId(), p.getId()));
-            page.forEach(p -> redisTemplate.opsForValue().set(PRODUCT_KEY_PREFIX+p.getId(), p));
+            List<Product> products = repo.findAll();
+            products.forEach(p -> redisTemplate.opsForZSet().add(PRODUCT_ZSET, p, p.getId()));
             return page;
         }
     }
 
-    @Cacheable(value = "product", key = "#id")
+
     public Product findProduct(int id){
-        return repo.findById(id).orElse(null);
+        Product product = (Product) redisTemplate.opsForZSet().rangeByScore(PRODUCT_ZSET, id, id);
+        if(product != null) return product;
+        product = repo.findById(id).orElse(null);
+        redisTemplate.opsForZSet().add(PRODUCT_ZSET, product, product.getId());
+        return product;
     }
 
-    @CachePut(value = "product", key = "#product.id")
-    public Product addProduct(Product product, MultipartFile multipartImage) throws IOException {
+
+    public void addProduct(Product product, MultipartFile multipartImage) throws IOException {
         Image image = new Image();
         image.setImageData(multipartImage.getBytes());
         image.setImageType(multipartImage.getContentType());
         image.setImageName(multipartImage.getOriginalFilename());
         image.setProduct(product);
-        redisTemplate.opsForZSet().add(PRODUCT_INDEX_KEY, product.getId(), product.getId());
+
+        redisTemplate.opsForZSet().add(PRODUCT_ZSET, product, product.getId());
         imageRepo.save(image);
-        return repo.save(product);
+        repo.save(product);
     }
 
 
     public byte[] getImageById(int id) {
         String encodedImage = (String)redisTemplate.opsForValue().get("image::" + id);
         byte[] decodedImage;
-        if(encodedImage != null){
+        if(!encodedImage.isEmpty()){
             decodedImage = Base64.getDecoder().decode(encodedImage);
         }else {
             decodedImage = imageRepo.findByProductId(id).getImageData();
-            redisTemplate.opsForValue().set("image::" + id, decodedImage, Duration.ofDays(1));
+            redisTemplate.opsForValue().set("image::" + id, decodedImage);
         }
 
         return decodedImage;
@@ -104,31 +107,45 @@ public class ProductService {
         image.setImageData(multipartImage.getBytes());
         image.setImageType(multipartImage.getContentType());
         image.setProduct(product);
-        redisTemplate.opsForValue().set("product::"+id, product, Duration.ofDays(1));
+        redisTemplate.opsForZSet().remove(PRODUCT_ZSET, product.getId(), product.getId());
+        redisTemplate.opsForZSet().add(PRODUCT_ZSET, product, product.getId());
         redisTemplate.opsForValue().set("image::"+id, multipartImage.getBytes(), Duration.ofDays(1));
         repo.save(product);
         imageRepo.save(image);
     }
 
-    @Caching(evict = {@CacheEvict(value = "product", key = "#id"), @CacheEvict(value = "image", key = "#id")})
+    @CacheEvict(value = "image", key = "#id")
     public void deleteProduct(int id) {
         repo.deleteById(id);
         imageRepo.deleteByProductId(id);
-        redisTemplate.opsForZSet().remove(PRODUCT_INDEX_KEY, id);
+        redisTemplate.opsForZSet().remove(PRODUCT_ZSET, id);
     }
 
 
     public List<Product> searchFor(String keyword) {
-        List<Product> products = (List<Product>) redisTemplate.opsForValue().get("products::SimpleKey []");
-        if(products.isEmpty()){
-            products = repo.findAll();
-            redisTemplate.opsForValue().set("products::SimpleKey[]", products, Duration.ofDays(1));
-        }
-        return products.stream()
-                .filter((product -> product.getDescription().toLowerCase().contains(keyword.toLowerCase())
-                        || product.getBrand().toLowerCase().contains(keyword.toLowerCase())
-                        || product.getName().toLowerCase().contains(keyword.toLowerCase())))
-                .toList();
+//        long start = System.currentTimeMillis();
+//        Set<Object> objects = redisTemplate.opsForZSet().range(PRODUCT_ZSET, 0, -1);
+//        List<Product> products = null;
+//        if(objects.isEmpty()){
+//            products = repo.findAll();
+//        } else {
+//            products = objects.stream()
+//                    .map(object -> (Product) object)
+//                    .toList();
+//        }
+//
+//        List<Product> filteredProducts = products.stream()
+//                .filter((product -> product.getDescription().toLowerCase().contains(keyword.toLowerCase())
+//                        || product.getBrand().toLowerCase().contains(keyword.toLowerCase())
+//                        || product.getName().toLowerCase().contains(keyword.toLowerCase())))
+//                .toList();
+//        System.out.println(System.currentTimeMillis() - start);
+//        return filteredProducts;
+
+        List<Product> products = repo.findAllByKeyword(keyword);
+
+        return products;
+
 
     }
 }

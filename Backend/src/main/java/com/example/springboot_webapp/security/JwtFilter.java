@@ -2,6 +2,7 @@ package com.example.springboot_webapp.security;
 
 
 import com.example.springboot_webapp.service.JwtService;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,19 +34,23 @@ public class JwtFilter extends OncePerRequestFilter {
         String userName = null;
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if(authHeader != null && authHeader.startsWith("Bearer ")){
-            token = authHeader.substring(7);
-            userName = jwtService.extractUserName(token);
-        }
-        if(userName != null && authentication == null){
-            UserDetails userDetails = userDetailsService.loadUserByUsername(userName);
-
-            if(jwtService.validateToken(token, userDetails)){
-                UsernamePasswordAuthenticationToken authToken =
-                        UsernamePasswordAuthenticationToken.authenticated(userDetails, null, userDetails.getAuthorities());
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+        try {
+            if(authHeader != null && authHeader.startsWith("Bearer ")){
+                token = authHeader.substring(7);
+                userName = jwtService.extractUserName(token);
             }
+            if(userName != null && authentication == null){
+                UserDetails userDetails = userDetailsService.loadUserByUsername(userName);
+
+                if(jwtService.validateToken(token, userDetails)){
+                    UsernamePasswordAuthenticationToken authToken =
+                            UsernamePasswordAuthenticationToken.authenticated(userDetails, null, userDetails.getAuthorities());
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
+            }
+        }catch (JwtException e){
+            System.out.println("Error verifying the JWT");
         }
 
         filterChain.doFilter(request, response);

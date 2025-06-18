@@ -41,7 +41,7 @@ public class Controller {
     public Controller() {
     }
     @GetMapping("/products")
-    public Page<? extends Object> getProducts(@RequestParam int currentPage, @RequestParam int pageSize){
+    public Page<Product> getProducts(@RequestParam int currentPage, @RequestParam int pageSize){
         return service.findAll(currentPage, pageSize);
     }
     @GetMapping("/product/{id}")
@@ -67,6 +67,7 @@ public class Controller {
             byte[] image = service.getImageById(id);
             return new ResponseEntity<>(image,HttpStatus.OK);
         }catch (NullPointerException e){
+            System.out.println(e.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }

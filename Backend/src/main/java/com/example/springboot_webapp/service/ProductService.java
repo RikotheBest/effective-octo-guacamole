@@ -5,11 +5,9 @@ import com.example.springboot_webapp.model.Product;
 import com.example.springboot_webapp.repo.ImageRepo;
 import com.example.springboot_webapp.repo.Repo;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.event.SpringApplicationEvent;
+
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -19,11 +17,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 
 import java.io.IOException;
-import java.time.Duration;
-import java.util.Base64;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+
+import java.util.*;
 
 @Service
 public class ProductService {
@@ -66,9 +61,10 @@ public class ProductService {
 
 
     public Product findProduct(int id){
-        Product product = (Product) redisTemplate.opsForZSet().rangeByScore(PRODUCT_ZSET, id, id);
-        if(product != null) return product;
-        product = repo.findById(id).orElse(null);
+        Set<Object> set =  redisTemplate.opsForZSet().rangeByScore(PRODUCT_ZSET, id, id);
+        if(!set.isEmpty()) return (Product) set.stream().findFirst().get();
+        Product product = repo.findById(id).orElse(null);
+        if(product == null) return product;
         redisTemplate.opsForZSet().add(PRODUCT_ZSET, product, product.getId());
         return product;
     }
@@ -90,7 +86,7 @@ public class ProductService {
     public byte[] getImageById(int id) {
         String encodedImage = (String)redisTemplate.opsForValue().get("image::" + id);
         byte[] decodedImage;
-        if(!encodedImage.isEmpty()){
+        if(encodedImage != null){
             decodedImage = Base64.getDecoder().decode(encodedImage);
         }else {
             decodedImage = imageRepo.findByProductId(id).getImageData();
@@ -109,7 +105,7 @@ public class ProductService {
         image.setProduct(product);
         redisTemplate.opsForZSet().remove(PRODUCT_ZSET, product.getId(), product.getId());
         redisTemplate.opsForZSet().add(PRODUCT_ZSET, product, product.getId());
-        redisTemplate.opsForValue().set("image::"+id, multipartImage.getBytes(), Duration.ofDays(1));
+        redisTemplate.opsForValue().set("image::"+id, multipartImage.getBytes());
         repo.save(product);
         imageRepo.save(image);
     }

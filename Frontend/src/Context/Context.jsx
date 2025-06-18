@@ -20,8 +20,8 @@ const AppContext = createContext({
 
 
 export const AppProvider = ({ children }) => {
-  const pageSize = 10;
-  const [currentPage, setCurrentPage] = useState(0)
+  const pageSize = 5;
+  const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [data, setData] = useState([]);
   const [isError, setIsError] = useState("");
@@ -101,7 +101,7 @@ export const AppProvider = ({ children }) => {
 
   
   return (
-    <AppContext.Provider value={{pageSize, currentPage, totalPages, data, isError, cart, addToCart, removeFromCart,refreshData, clearCart, setCurrentPage}}>
+    <AppContext.Provider value={{ pageSize, currentPage, totalPages, data, isError, cart, addToCart, removeFromCart,refreshData, clearCart, setCurrentPage}}>
       {children}
     </AppContext.Provider>
   );

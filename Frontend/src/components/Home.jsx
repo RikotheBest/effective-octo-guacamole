@@ -5,7 +5,7 @@ import AppContext from "../Context/Context";
 import unplugged from "../assets/unplugged.png"
 
 const Home = ({ selectedCategory }) => {
-  const {pageSize, pageNumber, data, isError, addToCart, refreshData } = useContext(AppContext);
+  const {data, isError, addToCart} = useContext(AppContext);
   const [products, setProducts] = useState([]);
 
 
@@ -25,10 +25,7 @@ const Home = ({ selectedCategory }) => {
             `/product/${product.id}/image`,
             { 
               responseType: "blob",
-              params:{
-                pageNumber: pageNumber,
-                pageSize: pageSize
-              }
+
               }
           )
           const imageURL = URL.createObjectURL(response.data);

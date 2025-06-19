@@ -1,16 +1,17 @@
 package com.example.springboot_webapp.repo;
 
 import com.example.springboot_webapp.model.Product;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.NativeQuery;
+
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
+
+
 import java.util.List;
-import java.util.Optional;
+
 
 
 @Repository
@@ -22,5 +23,12 @@ public interface Repo extends JpaRepository<Product, Integer> {
             "LOWER(p.brand) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     List<Product> findAllByKeyword(String keyword);
 
+    @Query("SELECT p from Product p WHERE LOWER(p.category) = LOWER(:category)")
+    Page<Product> findAllByCategory(String category, Pageable pageable);
 
+    @Query("SELECT p from Product p WHERE LOWER(p.category) = LOWER(:category)")
+    List<Product> findAllByCategory(String category);
+
+    @Query("SELECT count(p) from Product p WHERE LOWER(p.category) = LOWER(:category)")
+    long countByCategory(String category);
 }

@@ -5,8 +5,10 @@ import AppContext from "../Context/Context";
 import unplugged from "../assets/unplugged.png"
 
 const Home = ({ selectedCategory }) => {
-  const {data, isError, addToCart} = useContext(AppContext);
+  const {currentPage, pageSize, data, isError, addToCart, setData, setTotalPages} = useContext(AppContext);
   const [products, setProducts] = useState([]);
+
+
 
 
   useEffect(() => {
@@ -43,6 +45,7 @@ const Home = ({ selectedCategory }) => {
   };
 
   useEffect(() => {
+    // console.log("filter triggered the image fetch")
     if(data && data.length > 0){
       fetchImagesAndUpdateProducts();
     }
@@ -55,9 +58,22 @@ const Home = ({ selectedCategory }) => {
     };
   }, [data]);
   
-  let filteredProducts = selectedCategory 
-    ? products.filter((product) => product.category.toLowerCase() === selectedCategory.toLowerCase())
-    : products;
+
+  const filterByCategory = async() => {
+    // console.log("filter called")
+    const res = await axios.get("/filter", {
+        params: {
+          category : selectedCategory,
+          currentPage : currentPage,
+          pageSize : pageSize
+      }});
+    
+    setData(res.data.content)
+    setTotalPages(res.data.page.totalPages)
+    console.log(res.data.content)
+  }
+
+  useEffect( () => {filterByCategory()},[selectedCategory]);
   
 
   if (isError) {
@@ -79,7 +95,7 @@ const Home = ({ selectedCategory }) => {
           padding: "20px",
         }}
       >
-        {filteredProducts.length === 0 ? (
+        {products.length === 0 ? (
           <h2
             className="text-center"
             style={{
@@ -91,7 +107,7 @@ const Home = ({ selectedCategory }) => {
             No Products Available
           </h2>
         ) : (
-          filteredProducts.map((product) => {
+          products.map((product) => {
             const { id, brand, name, price, productAvailable, imageURL } =
               product;
             const cardStyle = {

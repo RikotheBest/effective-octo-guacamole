@@ -62,6 +62,7 @@ const Navbar = ({ onSelectCategory, onSearch }) => {
     "Electronics",
     "Toys",
     "Fashion",
+    "Other",
   ];
   return (
     <>

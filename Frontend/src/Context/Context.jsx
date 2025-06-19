@@ -101,7 +101,7 @@ export const AppProvider = ({ children }) => {
 
   
   return (
-    <AppContext.Provider value={{ pageSize, currentPage, totalPages, data, isError, cart, addToCart, removeFromCart,refreshData, clearCart, setCurrentPage}}>
+    <AppContext.Provider value={{ pageSize, currentPage, totalPages, data, isError, cart, addToCart, removeFromCart,refreshData, clearCart, setCurrentPage, setData, setTotalPages}}>
       {children}
     </AppContext.Provider>
   );

@@ -40,12 +40,7 @@ const Pagination = () => {
       listComponents = [firstPageIndex, DOTS, ...listComponents, DOTS, lastPageIndex];
     }
    
-   
-
-
-
-    
-
+  
 
     if (listComponents.length < 2) {
         console.log("returning null")

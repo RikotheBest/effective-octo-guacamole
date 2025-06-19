@@ -61,13 +61,16 @@ public class Controller {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    @GetMapping("/filter")
+    public ResponseEntity<Page<Product>> filter(@RequestParam String category, @RequestParam int currentPage, @RequestParam int pageSize){
+        return new ResponseEntity<>(service.filter(category, currentPage, pageSize), HttpStatus.OK);
+    }
     @GetMapping("/product/{id}/image")
     public ResponseEntity<byte[]> getImage(@PathVariable int id ){
         try {
             byte[] image = service.getImageById(id);
             return new ResponseEntity<>(image,HttpStatus.OK);
         }catch (NullPointerException e){
-            System.out.println(e.getMessage());
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }

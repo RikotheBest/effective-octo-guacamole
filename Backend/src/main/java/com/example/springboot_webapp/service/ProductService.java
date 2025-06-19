@@ -8,9 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.cache.annotation.CacheEvict;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.*;
+import org.springframework.data.redis.connection.Limit;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,6 +25,7 @@ public class ProductService {
     private ImageRepo imageRepo;
     private RedisTemplate<String, Object> redisTemplate;
     private static final String PRODUCT_ZSET = "products";
+    private static final String CATEGORY_ZSET = "products:category:";
 
 
     @Autowired
@@ -51,6 +51,12 @@ public class ProductService {
                     .toList();
 
             return new PageImpl<>(products, PageRequest.of(currentPage, pageSize), totalProducts);
+        } else if (cachedProducts > totalProducts) {
+            redisTemplate.getConnectionFactory().getConnection().execute("DEL " + PRODUCT_ZSET);
+            Page<Product> page = repo.findAll(PageRequest.of(currentPage,pageSize));
+            List<Product> products = repo.findAll();
+            products.forEach(p -> redisTemplate.opsForZSet().add(PRODUCT_ZSET, p, p.getId()));
+            return page;
         } else {
             Page<Product> page = repo.findAll(PageRequest.of(currentPage,pageSize));
             List<Product> products = repo.findAll();
@@ -117,6 +123,36 @@ public class ProductService {
         redisTemplate.opsForZSet().remove(PRODUCT_ZSET, id);
     }
 
+    public Page<Product> filter(String category, int currentPage, int pageSize) {
+        int offset = currentPage * pageSize;
+        Long cachedProducts = redisTemplate.opsForZSet().size(CATEGORY_ZSET + category);
+        long totalProducts = repo.countByCategory(category);
+        System.out.println(totalProducts);
+
+        if(cachedProducts == totalProducts){
+//            System.out.println("if called");
+             List<Product> products = redisTemplate.opsForZSet()
+                     .range(CATEGORY_ZSET + category, offset, pageSize)
+                     .stream()
+                     .map(object -> (Product) object)
+                     .toList();
+             return new PageImpl<>(products, PageRequest.of(currentPage, pageSize), totalProducts);
+        } else if (cachedProducts > totalProducts) {
+//            System.out.println("else if called");
+            redisTemplate.getConnectionFactory().getConnection().execute("DEL " + CATEGORY_ZSET + category);
+            Page<Product> page = repo.findAllByCategory(category, PageRequest.of(currentPage, pageSize));
+            List<Product> filteredProducts = repo.findAllByCategory(category);
+            filteredProducts.forEach(p -> redisTemplate.opsForZSet().add(CATEGORY_ZSET + category, p, 1));
+            return page;
+        } else{
+//            System.out.println("else called");
+            Page<Product> page = repo.findAllByCategory(category, PageRequest.of(currentPage, pageSize));
+            List<Product> filteredProducts = repo.findAllByCategory(category);
+            filteredProducts.forEach(p -> redisTemplate.opsForZSet().add(CATEGORY_ZSET + category, p, 1));
+            return page;
+        }
+    }
+
 
     public List<Product> searchFor(String keyword) {
 //        long start = System.currentTimeMillis();
@@ -144,4 +180,6 @@ public class ProductService {
 
 
     }
+
+
 }

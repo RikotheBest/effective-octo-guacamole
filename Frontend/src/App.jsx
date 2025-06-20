@@ -1,5 +1,5 @@
 import "./App.css";
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import Login from "./components/Login"
 import Home from "./components/Home";
 import Navbar from "./components/Navbar";
@@ -43,18 +43,17 @@ function App() {
   };
 
   return (
-  <AppProvider>
+  <AppProvider selectedCategory={selectedCategory}>
     <BrowserRouter>
       <AppContent 
         handleCategorySelect={handleCategorySelect} 
-        selectedCategory={selectedCategory}
         addToCart={addToCart}
       />
     </BrowserRouter>
   </AppProvider>       
   );
 }
-function AppContent({ handleCategorySelect, selectedCategory, addToCart }) {
+function AppContent({ handleCategorySelect, addToCart }) {
   const location = useLocation();
   const isHomePage = location.pathname === "/home"
   const isLoginPage = location.pathname === '/';
@@ -66,7 +65,7 @@ function AppContent({ handleCategorySelect, selectedCategory, addToCart }) {
         <Route path="/" element={<Login />} />
         <Route
           path="/home"
-          element={<Home addToCart={addToCart} selectedCategory={selectedCategory} />}
+          element={<Home addToCart={addToCart}/>}
         />
         <Route path="/add_product" element={<AddProduct />} />
         <Route path="/product" element={<Product />} />

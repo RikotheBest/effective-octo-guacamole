@@ -29,6 +29,7 @@ public interface Repo extends JpaRepository<Product, Integer> {
     @Query("SELECT p from Product p WHERE LOWER(p.category) = LOWER(:category)")
     List<Product> findAllByCategory(String category);
 
-    @Query("SELECT count(p) from Product p WHERE LOWER(p.category) = LOWER(:category)")
-    long countByCategory(String category);
+
+//    @Query("SELECT count(p) from Product p WHERE LOWER(p.category) = LOWER(:category)")
+//    long countByCategory(String category);
 }

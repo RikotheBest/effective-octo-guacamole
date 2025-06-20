@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import axios from "../axios";
-
+import AppContext from "../Context/Context";
 
 const Navbar = ({ onSelectCategory, onSearch }) => {
   const getInitialTheme = () => {
@@ -14,6 +14,7 @@ const Navbar = ({ onSelectCategory, onSearch }) => {
   const [noResults, setNoResults] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
   const [showSearchResults,setShowSearchResults] = useState(false)
+  const {setCurrentPage} = useContext(AppContext)
 
 
   useEffect(() => {
@@ -42,6 +43,7 @@ const Navbar = ({ onSelectCategory, onSearch }) => {
 
 
   function handleCategorySelect(category) {
+    setCurrentPage(0);
     setSelectedCategory(category);
     onSelectCategory(category);
   }

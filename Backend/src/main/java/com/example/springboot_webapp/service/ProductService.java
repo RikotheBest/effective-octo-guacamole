@@ -9,14 +9,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 
 import org.springframework.data.domain.*;
-import org.springframework.data.redis.connection.Limit;
+
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 
 import java.io.IOException;
 
+import java.time.Duration;
 import java.util.*;
 
 @Service
@@ -42,26 +44,19 @@ public class ProductService {
     public Page<Product> findAll(int currentPage, int pageSize){
         int start = currentPage * pageSize;
         int end = start + pageSize - 1;
-        Long cachedProducts = redisTemplate.opsForZSet().size(PRODUCT_ZSET);
-        long totalProducts = repo.count();
-        if(cachedProducts == totalProducts){
+        long totalProducts = redisTemplate.opsForZSet().size(PRODUCT_ZSET);
+
+        if(totalProducts != 0){
             Set<Object> objects = redisTemplate.opsForZSet().range(PRODUCT_ZSET, start, end);
             List<Product> products = objects.stream()
                     .map(object -> (Product)object)
                     .toList();
 
             return new PageImpl<>(products, PageRequest.of(currentPage, pageSize), totalProducts);
-        } else if (cachedProducts > totalProducts) {
-            redisTemplate.getConnectionFactory().getConnection().execute("DEL " + PRODUCT_ZSET);
-            Page<Product> page = repo.findAll(PageRequest.of(currentPage,pageSize));
-            List<Product> products = repo.findAll();
-            products.forEach(p -> redisTemplate.opsForZSet().add(PRODUCT_ZSET, p, p.getId()));
-            return page;
         } else {
-            Page<Product> page = repo.findAll(PageRequest.of(currentPage,pageSize));
             List<Product> products = repo.findAll();
             products.forEach(p -> redisTemplate.opsForZSet().add(PRODUCT_ZSET, p, p.getId()));
-            return page;
+            return repo.findAll(PageRequest.of(currentPage,pageSize));
         }
     }
 
@@ -76,14 +71,15 @@ public class ProductService {
     }
 
 
+    @Transactional
     public void addProduct(Product product, MultipartFile multipartImage) throws IOException {
-        Image image = new Image();
-        image.setImageData(multipartImage.getBytes());
-        image.setImageType(multipartImage.getContentType());
-        image.setImageName(multipartImage.getOriginalFilename());
-        image.setProduct(product);
+        Image image = new Image(multipartImage.getName(),
+                                multipartImage.getContentType(),
+                                multipartImage.getBytes(),
+                                product);
 
         redisTemplate.opsForZSet().add(PRODUCT_ZSET, product, product.getId());
+        redisTemplate.opsForZSet().add(CATEGORY_ZSET + product.getCategory().toLowerCase(), product, product.getId());
         imageRepo.save(image);
         repo.save(product);
     }
@@ -101,83 +97,71 @@ public class ProductService {
 
         return decodedImage;
 
+
     }
 
+    @Transactional
     public void updateProduct(int id, Product product, MultipartFile multipartImage) throws IOException {
-        Image image = new Image();
-        image.setImageName(multipartImage.getOriginalFilename());
+        Image image = imageRepo.findByProductId(id);
+        if(image == null) image = new Image();
         image.setImageData(multipartImage.getBytes());
+        image.setImageName(multipartImage.getName());
         image.setImageType(multipartImage.getContentType());
         image.setProduct(product);
-        redisTemplate.opsForZSet().remove(PRODUCT_ZSET, product.getId(), product.getId());
-        redisTemplate.opsForZSet().add(PRODUCT_ZSET, product, product.getId());
+
+        long filteredProducts = redisTemplate.opsForZSet().zCard(CATEGORY_ZSET + product.getCategory().toLowerCase());
+        long totalProducts = redisTemplate.opsForZSet().zCard(PRODUCT_ZSET);
+
+        if(totalProducts != 0){
+            redisTemplate.opsForZSet().removeRangeByScore(PRODUCT_ZSET, product.getId(), product.getId());
+            redisTemplate.opsForZSet().add(PRODUCT_ZSET, product, product.getId());
+        }
+
+        if(filteredProducts != 0){
+            redisTemplate.opsForZSet().removeRangeByScore(CATEGORY_ZSET + product.getCategory().toLowerCase(), product.getId(), product.getId());
+            redisTemplate.opsForZSet().add(CATEGORY_ZSET + product.getCategory().toLowerCase(), product, product.getId());
+        }
+
         redisTemplate.opsForValue().set("image::"+id, multipartImage.getBytes());
         repo.save(product);
         imageRepo.save(image);
     }
 
+
+
+
+    @Transactional
     @CacheEvict(value = "image", key = "#id")
-    public void deleteProduct(int id) {
+    public void deleteProduct(int id, String category) {
         repo.deleteById(id);
         imageRepo.deleteByProductId(id);
-        redisTemplate.opsForZSet().remove(PRODUCT_ZSET, id);
+        redisTemplate.opsForZSet().removeRangeByScore(PRODUCT_ZSET, id, id);
+        redisTemplate.opsForZSet().removeRangeByScore(CATEGORY_ZSET  + category.toLowerCase(), id, id);
     }
 
     public Page<Product> filter(String category, int currentPage, int pageSize) {
         int offset = currentPage * pageSize;
-        Long cachedProducts = redisTemplate.opsForZSet().size(CATEGORY_ZSET + category);
-        long totalProducts = repo.countByCategory(category);
-        System.out.println(totalProducts);
+        int end = offset + pageSize - 1;
+        long totalProducts = redisTemplate.opsForZSet().size(CATEGORY_ZSET + category.toLowerCase());
 
-        if(cachedProducts == totalProducts){
-//            System.out.println("if called");
-             List<Product> products = redisTemplate.opsForZSet()
-                     .range(CATEGORY_ZSET + category, offset, pageSize)
+        if(totalProducts != 0){
+            List<Product> products = redisTemplate.opsForZSet()
+                     .range(CATEGORY_ZSET + category.toLowerCase(), offset, end)
                      .stream()
                      .map(object -> (Product) object)
                      .toList();
-             return new PageImpl<>(products, PageRequest.of(currentPage, pageSize), totalProducts);
-        } else if (cachedProducts > totalProducts) {
-//            System.out.println("else if called");
-            redisTemplate.getConnectionFactory().getConnection().execute("DEL " + CATEGORY_ZSET + category);
-            Page<Product> page = repo.findAllByCategory(category, PageRequest.of(currentPage, pageSize));
-            List<Product> filteredProducts = repo.findAllByCategory(category);
-            filteredProducts.forEach(p -> redisTemplate.opsForZSet().add(CATEGORY_ZSET + category, p, 1));
-            return page;
+            return new PageImpl<>(products, PageRequest.of(currentPage, pageSize), totalProducts);
         } else{
-//            System.out.println("else called");
-            Page<Product> page = repo.findAllByCategory(category, PageRequest.of(currentPage, pageSize));
             List<Product> filteredProducts = repo.findAllByCategory(category);
-            filteredProducts.forEach(p -> redisTemplate.opsForZSet().add(CATEGORY_ZSET + category, p, 1));
-            return page;
+            filteredProducts.forEach(p -> redisTemplate.opsForZSet().add(CATEGORY_ZSET + category.toLowerCase(), p, p.getId()));
+            return repo.findAllByCategory(category, PageRequest.of(currentPage, pageSize));
         }
     }
 
 
     public List<Product> searchFor(String keyword) {
-//        long start = System.currentTimeMillis();
-//        Set<Object> objects = redisTemplate.opsForZSet().range(PRODUCT_ZSET, 0, -1);
-//        List<Product> products = null;
-//        if(objects.isEmpty()){
-//            products = repo.findAll();
-//        } else {
-//            products = objects.stream()
-//                    .map(object -> (Product) object)
-//                    .toList();
-//        }
-//
-//        List<Product> filteredProducts = products.stream()
-//                .filter((product -> product.getDescription().toLowerCase().contains(keyword.toLowerCase())
-//                        || product.getBrand().toLowerCase().contains(keyword.toLowerCase())
-//                        || product.getName().toLowerCase().contains(keyword.toLowerCase())))
-//                .toList();
-//        System.out.println(System.currentTimeMillis() - start);
-//        return filteredProducts;
 
-        List<Product> products = repo.findAllByKeyword(keyword);
-
-        return products;
-
+        return repo.findAllByKeyword(keyword);
 
     }
 

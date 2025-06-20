@@ -18,7 +18,23 @@ public class Image {
     public Image() {
     }
 
-    public Image(String imageName, String imageType, byte[] imageData) {
+    public Image(int id, String imageName, String imageType, byte[] imageData, Product product) {
+        this.id = id;
+        this.imageName = imageName;
+        this.imageType = imageType;
+        this.imageData = imageData;
+        this.product = product;
+    }
+
+    public Image(String imageName, String imageType, byte[] imageData, Product product) {
+        this.imageName = imageName;
+        this.imageType = imageType;
+        this.imageData = imageData;
+        this.product = product;
+    }
+
+    public Image(int id, String imageName, String imageType, byte[] imageData) {
+        this.id = id;
         this.imageName = imageName;
         this.imageType = imageType;
         this.imageData = imageData;

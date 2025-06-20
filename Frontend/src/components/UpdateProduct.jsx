@@ -2,20 +2,11 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "../axios";
 
+
 const UpdateProduct = () => {
   const { id } = useParams();
   const [image, setImage] = useState();
-  const [product, setProduct] = useState({
-    id: null,
-    name: "",
-    description: "",
-    brand: "",
-    price: "",
-    category: "",
-    releaseDate: "",
-    productAvailable: false,
-    stockQuantity: "",
-  });
+  const [product, setProduct] = useState(null);
 
   useEffect(() => {
     fetchProduct();
@@ -94,9 +85,16 @@ const UpdateProduct = () => {
   const handleImageChange = (e) => {
     setImage(e.target.files[0]);
   };
-  
 
-  return (
+  if (!product) {
+    return (
+      <h2 className="text-center" style={{ padding: "10rem" }}>
+        Loading...
+      </h2>
+    );
+  }
+
+   return (
     <div className="update-product-container" >
       <div className="center-container"style={{marginTop:"7rem"}}>
         <h1>Update Product</h1>
@@ -174,6 +172,7 @@ const UpdateProduct = () => {
               <option value="electronics">Electronics</option>
               <option value="toys">Toys</option>
               <option value="fashion">Fashion</option>
+              <option value="other">Other</option>
             </select>
           </div>
 
@@ -240,6 +239,7 @@ const UpdateProduct = () => {
       </div>
     </div>
   );
+  
 };
 
 export default UpdateProduct;

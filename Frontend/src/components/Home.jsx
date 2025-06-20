@@ -4,8 +4,8 @@ import axios from "../axios";
 import AppContext from "../Context/Context";
 import unplugged from "../assets/unplugged.png"
 
-const Home = ({ selectedCategory }) => {
-  const {currentPage, pageSize, data, isError, addToCart, setData, setTotalPages} = useContext(AppContext);
+const Home = () => {
+  const {data, isError, addToCart} = useContext(AppContext);
   const [products, setProducts] = useState([]);
 
 
@@ -59,21 +59,21 @@ const Home = ({ selectedCategory }) => {
   }, [data]);
   
 
-  const filterByCategory = async() => {
-    // console.log("filter called")
-    const res = await axios.get("/filter", {
-        params: {
-          category : selectedCategory,
-          currentPage : currentPage,
-          pageSize : pageSize
-      }});
+  // const filterByCategory = async() => {
+  //   // console.log("filter called")
+  //   res = await axios.get("/filter", {
+  //       params: {
+  //         category : selectedCategory,
+  //         currentPage : currentPage,
+  //         pageSize : pageSize
+  //     }});
     
-    setData(res.data.content)
-    setTotalPages(res.data.page.totalPages)
-    console.log(res.data.content)
-  }
+  //   setData(res.data.content)
+  //   setTotalPages(res.data.page.totalPages)
+  //   console.log(res.data.content)
+  // }
 
-  useEffect( () => {filterByCategory()},[selectedCategory]);
+  // useEffect( () => {filterByCategory()},[selectedCategory]);
   
 
   if (isError) {

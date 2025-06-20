@@ -75,18 +75,19 @@ public class Controller {
         }
     }
     @PutMapping(path = "/product/{id}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<?> updateProduct(@RequestPart("product") Product product, @RequestParam("imageFile") MultipartFile multipartImage, @PathVariable int id ){
+    public ResponseEntity<?> updateProduct(@RequestPart("product") Product product, @RequestParam(value = "imageFile") MultipartFile multipartImage, @PathVariable int id ){
         if(product == null && multipartImage == null) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         try {
             service.updateProduct(id, product, multipartImage);
+
             return new ResponseEntity<>(HttpStatus.CREATED);
         } catch (IOException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     @DeleteMapping("/product/{id}")
-    public ResponseEntity<?> deleteProduct(@PathVariable int id){
-        service.deleteProduct(id);
+    public ResponseEntity<?> deleteProduct(@PathVariable int id, @RequestParam String category){
+        service.deleteProduct(id, category);
         return new ResponseEntity<>(HttpStatus.OK);
     }
     @GetMapping("/products/search")

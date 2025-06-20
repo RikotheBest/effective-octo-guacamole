@@ -43,7 +43,6 @@ const Pagination = () => {
   
 
     if (listComponents.length < 2) {
-        console.log("returning null")
         return null;
     }
 

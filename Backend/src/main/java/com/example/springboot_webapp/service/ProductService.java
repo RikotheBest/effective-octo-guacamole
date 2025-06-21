@@ -59,6 +59,9 @@ public class ProductService {
             return repo.findAll(PageRequest.of(currentPage,pageSize));
         }
     }
+    public List<Product> findAll() {
+        return repo.findAll();
+    }
 
 
     public Product findProduct(int id){
@@ -78,8 +81,8 @@ public class ProductService {
                                 multipartImage.getBytes(),
                                 product);
 
-        redisTemplate.opsForZSet().add(PRODUCT_ZSET, product, product.getId());
-        redisTemplate.opsForZSet().add(CATEGORY_ZSET + product.getCategory().toLowerCase(), product, product.getId());
+        redisTemplate.getConnectionFactory().getConnection().execute("flushdb");
+
         imageRepo.save(image);
         repo.save(product);
     }
@@ -109,20 +112,8 @@ public class ProductService {
         image.setImageType(multipartImage.getContentType());
         image.setProduct(product);
 
-        long filteredProducts = redisTemplate.opsForZSet().zCard(CATEGORY_ZSET + product.getCategory().toLowerCase());
-        long totalProducts = redisTemplate.opsForZSet().zCard(PRODUCT_ZSET);
 
-        if(totalProducts != 0){
-            redisTemplate.opsForZSet().removeRangeByScore(PRODUCT_ZSET, product.getId(), product.getId());
-            redisTemplate.opsForZSet().add(PRODUCT_ZSET, product, product.getId());
-        }
-
-        if(filteredProducts != 0){
-            redisTemplate.opsForZSet().removeRangeByScore(CATEGORY_ZSET + product.getCategory().toLowerCase(), product.getId(), product.getId());
-            redisTemplate.opsForZSet().add(CATEGORY_ZSET + product.getCategory().toLowerCase(), product, product.getId());
-        }
-
-        redisTemplate.opsForValue().set("image::"+id, multipartImage.getBytes());
+        redisTemplate.getConnectionFactory().getConnection().execute("flushdb");
         repo.save(product);
         imageRepo.save(image);
     }
@@ -131,12 +122,10 @@ public class ProductService {
 
 
     @Transactional
-    @CacheEvict(value = "image", key = "#id")
     public void deleteProduct(int id, String category) {
         repo.deleteById(id);
         imageRepo.deleteByProductId(id);
-        redisTemplate.opsForZSet().removeRangeByScore(PRODUCT_ZSET, id, id);
-        redisTemplate.opsForZSet().removeRangeByScore(CATEGORY_ZSET  + category.toLowerCase(), id, id);
+        redisTemplate.getConnectionFactory().getConnection().execute("flushdb");
     }
 
     public Page<Product> filter(String category, int currentPage, int pageSize) {
@@ -164,6 +153,7 @@ public class ProductService {
         return repo.findAllByKeyword(keyword);
 
     }
+
 
 
 }

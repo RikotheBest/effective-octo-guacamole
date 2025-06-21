@@ -41,9 +41,11 @@ public class Controller {
     public Controller() {
     }
     @GetMapping("/products")
-    public Page<Product> getProducts(@RequestParam int currentPage, @RequestParam int pageSize){
-        return service.findAll(currentPage, pageSize);
+    public ResponseEntity<?> getProducts(@RequestParam(required = false) Integer currentPage, @RequestParam(required = false) Integer pageSize){
+        if(currentPage == null && pageSize == null) return new ResponseEntity<>(service.findAll(), HttpStatus.OK);
+        return new ResponseEntity<>(service.findAll(currentPage, pageSize), HttpStatus.OK);
     }
+
     @GetMapping("/product/{id}")
     public ResponseEntity<Product> getProduct(@PathVariable int id){
         Product product = service.findProduct(id);

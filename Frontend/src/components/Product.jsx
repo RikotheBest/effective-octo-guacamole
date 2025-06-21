@@ -36,6 +36,7 @@ const Product = () => {
     };
 
     fetchProduct();
+    fetchImage();
   }, [id]);
 
   const deleteProduct = async () => {

@@ -160,7 +160,7 @@ const UpdateProduct = () => {
             </label>
             <select
               className="form-select"
-              value={product.category}
+              value={product.category.toLowerCase()}
               onChange={handleChange}
               name="category"
               id="category"

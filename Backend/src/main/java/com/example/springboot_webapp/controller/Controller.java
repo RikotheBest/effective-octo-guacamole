@@ -88,8 +88,8 @@ public class Controller {
         }
     }
     @DeleteMapping("/product/{id}")
-    public ResponseEntity<?> deleteProduct(@PathVariable int id, @RequestParam String category){
-        service.deleteProduct(id, category);
+    public ResponseEntity<?> deleteProduct(@PathVariable int id){
+        service.deleteProduct(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
     @GetMapping("/products/search")

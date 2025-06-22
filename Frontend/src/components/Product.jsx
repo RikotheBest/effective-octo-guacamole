@@ -41,10 +41,7 @@ const Product = () => {
 
   const deleteProduct = async () => {
     try {
-      await axios.delete(`/product/${id}`, {
-        params : {
-          category : product.category
-      }});
+      await axios.delete(`/product/${id}`);
       removeFromCart(id);
       console.log("Product deleted successfully");
       alert("Product deleted successfully");

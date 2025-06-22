@@ -6,8 +6,9 @@ import com.example.springboot_webapp.repo.ImageRepo;
 import com.example.springboot_webapp.repo.Repo;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import org.springframework.cache.annotation.CacheEvict;
 
+
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.*;
 
 import org.springframework.data.redis.core.RedisTemplate;
@@ -18,7 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
-import java.time.Duration;
 import java.util.*;
 
 @Service
@@ -64,13 +64,12 @@ public class ProductService {
     }
 
 
+
+    @Cacheable(value = "product", key = "#id")
     public Product findProduct(int id){
-        Set<Object> set =  redisTemplate.opsForZSet().rangeByScore(PRODUCT_ZSET, id, id);
-        if(!set.isEmpty()) return (Product) set.stream().findFirst().get();
-        Product product = repo.findById(id).orElse(null);
-        if(product == null) return product;
-        redisTemplate.opsForZSet().add(PRODUCT_ZSET, product, product.getId());
-        return product;
+
+        return repo.findById(id).orElse(null);
+
     }
 
 
@@ -122,7 +121,7 @@ public class ProductService {
 
 
     @Transactional
-    public void deleteProduct(int id, String category) {
+    public void deleteProduct(int id) {
         repo.deleteById(id);
         imageRepo.deleteByProductId(id);
         redisTemplate.getConnectionFactory().getConnection().execute("flushdb");

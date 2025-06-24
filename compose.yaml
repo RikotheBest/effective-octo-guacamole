@@ -1,37 +1,35 @@
 services:
     frontend:
-        build: ./frontend
+        build: ./Frontend
         ports:
             - 5173:5173
         volumes:
-            - ./frontend:/app/frontend
             - node_modules:/app/frontend/node_modules
         stdin_open: true
         tty: true
 
     backend:
-        build: ./backend
+        build: ./Backend
         ports:
             - 8080:8080
         depends_on:
             - db
             - redis
-        volumes:
-            - ./backend/target/app-3.4.1.jar:/app/backend/app.jar
 
     db:
         image: 'postgres:17'
         environment:
-            POSTGRES_PASSWORD: riyad2004
+            POSTGRES_PASSWORD: 12345
         volumes:
             - db-volume:/var/lib/postgresql/data/
+            - ./dataset:/docker-entrypoint-initdb.d
     pgadmin:
         image: dpage/pgadmin4
         ports:
             - 80:80
         environment:
             PGADMIN_DEFAULT_EMAIL: user@domain.com
-            PGADMIN_DEFAULT_PASSWORD: password
+            PGADMIN_DEFAULT_PASSWORD: 12345
         depends_on:
             - db
         volumes:

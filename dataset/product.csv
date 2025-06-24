@@ -1,0 +1,44 @@
+id,brand,name,price,description,release_date,product_available,stock_quantity,category
+1,Apple,iPhone 15,999,Latest iPhone model with A16 chip.,1/15/2024 0:00,TRUE,50,mobile
+2,Samsung,Galaxy S26,899,High-end Android smartphone.,2/10/2024 0:00,TRUE,40,mobile
+3,Sony,PlayStation 5,499,Next-gen gaming console.,12/5/2023 0:00,TRUE,30,electronics
+4,Dell,XPS 14,1499,Powerful laptop with OLED display.,1/20/2024 0:00,TRUE,25,laptop
+5,LG,"OLED TV 55""",1299,4K OLED TV with stunning visuals.,2/1/2024 0:00,TRUE,15,electronics
+6,Nike,Air Max 270,150,Comfortable running shoes.,2/25/2024 0:00,TRUE,100,fashion
+7,Adidas,Ultraboost,180,High-performance running shoes.,2/28/2024 0:00,TRUE,80,fashion
+8,Bose,QuietComfort 45,329,Noise-canceling wireless headphones.,11/15/2023 0:00,TRUE,20,headphone
+9,Canon,EOS R5,3899,Professional mirrorless camera.,12/22/2023 0:00,TRUE,10,electronics
+10,Logitech,MX Master 3,99,Ergonomic wireless mouse.,1/10/2024 0:00,TRUE,200,electronics
+13,sex,sexy test,50,very sexy test,6/19/2025 2:00,TRUE,7,toys
+15,sex,cachetest,1000,sexy description,6/19/2025 2:00,TRUE,8,mobile
+18,Apple,iPhone 15 Pro,99999,Latest iPhone with advanced camera system,9/15/2023 10:00,TRUE,150,Electronics
+19,Samsung,Galaxy S24 Ultra,119999,Premium Android smartphone with S Pen,1/17/2024 9:00,TRUE,85,Electronics
+20,Sony,WH-1000XM5,39999,Wireless noise-canceling headphones,5/12/2022 14:30,TRUE,200,Electronics
+21,Apple,MacBook Pro 16-inch,249999,Powerful laptop for professionals,10/30/2023 11:00,TRUE,45,laptop
+22,Dell,Alienware m15 R7,189999,Gaming laptop with RTX graphics,3/22/2023 16:45,TRUE,25,Electronics
+23,LG,OLED55C3PUA,149999,55-inch 4K OLED Smart TV,4/18/2023 12:00,TRUE,30,Electronics
+24,Nintendo,Switch OLED,34999,Portable gaming console,10/8/2021 8:00,TRUE,120,Electronics
+25,Nike,Air Max 270,12999,Comfortable running shoes for daily training,2/14/2023 10:00,TRUE,180,fashion
+26,Adidas,Stan Smith,8999,Classic three-stripe sneakers,1/10/2023 9:30,TRUE,250,fashion
+27,Levi's,501 Original Jeans,7999,Classic straight-fit denim jeans,3/5/2023 14:00,TRUE,300,fashion
+28,H&M,Essential Cotton Tee,1999,Casual cotton t-shirt in multiple colors,6/1/2023 11:00,TRUE,500,fashion
+29,Zara,Structured Blazer,5999,Elegant blazer for professional wear,8/15/2023 13:30,TRUE,75,fashion
+30,Champion,Reverse Weave Hoodie,4999,Cozy pullover hoodie,9/20/2023 15:00,TRUE,150,fashion
+32,Dyson,V15 Detect,64999,Cordless vacuum cleaner with powerful suction,7/22/2023 10:30,TRUE,40,other
+33,KitchenAid,Artisan Series 5-Qt,39999,Stand mixer for baking enthusiasts,5/18/2023 14:45,TRUE,60,other
+34,Philips,Hue White & Color 4-Pack,9999,Smart LED light bulbs with app control,8/30/2023 16:00,TRUE,200,other
+35,Black+Decker,TO1313SBD 4-Slice,4999,Compact toaster oven for small kitchens,6/12/2023 11:30,TRUE,90,other
+36,Penguin Random House,The Seven Husbands of Evelyn Hugo,1599,Bestselling fiction novel,1/15/2023 9:00,TRUE,400,other
+38,O'Reilly Media,Learning Python 5th Edition,4999,Programming guide for beginners,3/30/2023 13:00,TRUE,120,other
+39,National Geographic,Around the World in 125 Years,3999,Stunning photography of world cultures,7/5/2023 12:30,TRUE,75,other
+40,Wilson,Pro Staff 97 V13,19999,Professional tennis racket,4/25/2023 14:00,TRUE,50,other
+41,Spalding,NBA Official Game Ball,12999,Official size basketball,5/10/2023 11:45,TRUE,100,other
+42,Fitbit,Charge 5,14999,Advanced fitness tracker with GPS,6/8/2023 9:30,TRUE,180,other
+43,Yeti,Rambler 32oz,3999,Insulated water bottle,7/12/2023 15:30,TRUE,250,other
+44,L'Oréal,Revitalift Vitamin C Serum,2999,Anti-aging face serum with vitamin C,8/1/2023 10:00,TRUE,300,other
+45,Gillette,Fusion5 ProGlide,1999,Multi-blade razor for smooth shave,5/22/2023 12:15,TRUE,400,other
+46,Neutrogena,Ultra Gentle Daily Cleanser,899,Gentle daily face cleanser,6/18/2023 14:30,TRUE,500,other
+47,Oral-B,Genius X,19999,Electric toothbrush with smart features,9/3/2023 11:00,TRUE,85,electronics
+52,Supreme,Box Logo Deck,39999,Limited edition skateboard deck,11/15/2023 12:00,FALSE,0,fashion
+53,Rolex,Submariner Date,899999,Luxury Swiss watch,8/10/2023 16:30,FALSE,0,other
+55,sdasdas,finaltesst,2313123,adsdasdsad,6/6/2025 2:00,TRUE,3231231,laptop

@@ -1,6 +1,5 @@
 package com.example.springboot_webapp.controller;
 
-import com.example.springboot_webapp.model.Image;
 import com.example.springboot_webapp.model.Product;
 import com.example.springboot_webapp.model.User;
 import com.example.springboot_webapp.service.JwtService;
@@ -94,7 +93,7 @@ public class Controller {
     }
     @GetMapping("/products/search")
     public ResponseEntity<List<Product>> searchForProduct(@RequestParam String keyword){
-        List products = service.searchFor(keyword);
+        List<Product> products = service.searchFor(keyword);
 //        if(products.size() == 0) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         return new ResponseEntity<>(products, HttpStatus.OK);
     }

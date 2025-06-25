@@ -37,17 +37,22 @@ Before running this project, make sure you have the following installed:
    git clone <your-repository-url>
    cd <project-directory>
    ```
+2. **Prepare the Backend**
+   - Turn on the `skip tests` mode and run `mvn package`
+   - `skip tests` is important: Otherwise maven will throw an error because it couldn't connect to the database
+   - Create a `dependency` folder in the `target` directory and unpack the fat jar in it.
 
-2. **Start the application**
+4. **Start the application**
+   - Return to the root directory of the project and up the docker-compose
    ```bash
-   docker-compose up -d
+   docker-compose up
    ```
 
-3. **Access the application**
+6. **Access the application**
    - Frontend: http://localhost:5173
    - Backend API: http://localhost:8080
 
-4. **Stop the application**
+7. **Stop the application**
    ```bash
    docker-compose down
    ```
